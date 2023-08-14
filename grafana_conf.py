@@ -1,4 +1,6 @@
 import yaml #pip install pyyaml
+import subprocess
+
 
 ###########################################################################
 ####                        Grafana Conf Calss                         ####
@@ -132,6 +134,22 @@ class ansible_conf():
             for all in all_list:
                 inv.write(all + '\n')
             inv.close()
+            
+class process_run():
+    def __init__(self) -> None:
+        pass 
+    
+    def ansible_run(self):
+        print("Docker Install")
+        docker_install = subprocess.call("ansible-playbook -i /docker-compose/Inventory /docker-compose/docker_install.yaml", shell=True)
+        
+        print("Node Exporter UP")
+        node_exporter = subprocess.call("ansible-playbook -i /docker-compose/Inventory /docker-compose/node-exporter-ansible.yaml", shell=True)
+        
+        print("Master Grafana UP")
+        master = subprocess.call("ansible-playbook -i /docker-compose/Inventory /docker-compose/grafana-ansible.yaml",shell=True)
+        
+    
 
 ###########################################
 ###           Main Function             ###
@@ -176,6 +194,7 @@ if __name__ == "__main__":
         master,
         linux_slave_ip_list
     )
+    process_start = process_run()
     
     #Windows Confg Call
     grafana_conf_call.windows_conf_generator()
@@ -183,3 +202,6 @@ if __name__ == "__main__":
     grafana_conf_call.linux_conf_generator()
     #Inventory Conf Call
     ansible_conf_call.create_inventory()
+    
+    #Process Start 
+    process_start.ansible_run()
