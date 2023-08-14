@@ -1,0 +1,20 @@
+---
+- name: Docker Compose Node Exporter UP
+  hosts: node
+  gather_facts: no
+  remote_user: ncloud
+
+  tasks:
+    - name: Create node-exproter dir # Exporter를 설치할 path를 정한 후 디렉토리를 생성해줍니다.
+      file:
+        path: /docker-compose
+        state: directory
+      become: yes
+
+    - name: Git Clone
+      shell: git clone https://github.com/kosaf1996/grafana_automation.git /docker-compose
+      become: yes
+
+    - name: Run Node Exporter # chdir로 해당 디렉토리에 접근한 다음 cmd명령어로 docker-compose를 실행합니다.
+      shell: docker-compose -f /docker-compose/node-exporter.yaml up -d
+      become: yes
