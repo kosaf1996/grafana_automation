@@ -1,0 +1,114 @@
+---
+- name: Docker Install 
+  hosts: all
+  remote_user: ncloud 
+
+  tasks:
+    - name: Check OS Name  
+      shell: cat /etc/os-release | egrep ^NAME | awk -F "=" '{ print $2 }' | sed s/\"//g  
+      register: os_name  
+
+    - name: Distribution version
+      debug: msg="{{ ansible_distribution}}"
+
+    - name: Install yum utils
+      package:
+        name: yum-utils
+        state: present 
+      when: ansible_distribution == 'CentOS' 
+
+    - name: Install apt-transport-https 
+      package:
+        name: apt-transport-https
+        state: present
+      become: yes
+      when: ansible_distribution == 'Ubuntu'
+
+
+    - name: Install ca-certificates 
+      package:
+        name: ca-certificates
+        state: present
+      become: yes
+      when: ansible_distribution == 'Ubuntu'
+
+    - name: Install software-properties-common
+      package:
+        name: software-properties-common
+        state: present
+      become: yes
+      when: ansible_distribution == 'Ubuntu'
+
+    - name: Install software-properties-common
+      package:
+        name: curl 
+        state: present
+      become: yes
+      when: ansible_distribution == 'Ubuntu'
+
+
+    - name: Add Docker Repo
+      shell: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+      become: yes
+      when: ansible_distribution == 'Ubuntu'
+
+    - name: Add Docker Repo
+      shell: add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable"
+      become: yes
+      when: ansible_distribution == 'Ubuntu'
+
+
+    - name: Add Docker Repo
+      shell: yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+      become: yes
+      when: ansible_distribution == 'CentOS'
+
+    - name: Add Docker Repo Conf
+      shell: yum-config-manager --enable docker-ce-nightly
+      become: yes
+      when: ansible_distribution == 'CentOS'
+
+
+    - name: Install Docker-ce
+      package:
+        name: docker-ce
+        state: present
+      become: yes
+
+    - name: Install Docker-ce-cli
+      package:
+        name: docker-ce-cli
+        state: present
+      become: yes
+
+    - name: Install Containerd
+      package:
+        name: containerd.io
+        state: present
+      become: yes
+
+    - name: Start Docker service
+      service:
+        name: docker
+        state: started
+        enabled: yes
+      become: yes
+
+    - name: Install git
+      package:
+        name: git
+        state: present
+      become: yes
+
+    - name: Docker-Compose Install 
+      shell: sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+      become: yes
+
+    - name: Docker-Compose Install Run
+      shell: sudo chmod +x /usr/local/bin/docker-compose
+      become: yes
+
+    - name: CentOS Docker-Compose Link 
+      shell: ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+      become: yes
+      when: ansible_distribution == 'CentOS'
