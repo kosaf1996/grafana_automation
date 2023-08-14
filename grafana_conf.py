@@ -144,10 +144,10 @@ class process_run():
         docker_install = subprocess.call("ansible-playbook -i /docker-compose/Inventory /docker-compose/docker_install.yaml", shell=True)
         
         print("Node Exporter UP")
-        node_exporter = subprocess.call("ansible-playbook -i /docker-compose/Inventory /docker-compose/node_exporter_ansible.yaml", shell=True)
+        node_exporter = subprocess.call("ansible-playbook -i /docker-compose/Inventory /docker-compose/node-exporter-ansible.yaml", shell=True)
         
         print("Master Grafana UP")
-        master = subprocess.call("ansible-playbook -i /docker-compose/Inventory /docker-compose/grafana_ansible.yaml",shell=True)
+        master = subprocess.call("ansible-playbook -i /docker-compose/Inventory /docker-compose/grafana-ansible.yaml",shell=True)
         
     
 
@@ -161,6 +161,9 @@ if __name__ == "__main__":
     linux_slave_num = int(input("Linux Salve Node Num : ")) + 1
     windows_slave_num = int(input("Windows Salve Node Num : ")) +1
     
+    #공백 제거
+    master = master.strip()
+    
     linux_slave_ip_list = []
     linux_salve_name_list = []
     
@@ -170,14 +173,18 @@ if __name__ == "__main__":
     
     for i  in range(1, linux_slave_num ):
         linux_slave_ip = input("Linux Salve IP : ")
+        linux_slave_ip = linux_slave_ip.strip()
         linux_slave_ip_list.append(linux_slave_ip)
         linux_slave_name = input("Linux Salve Name : ")
+        linux_slave_name = linux_slave_name.strip()
         linux_salve_name_list.append(linux_slave_name)
     
     for i in range(1, windows_slave_num):
         windows_slave_ip = input("Windows Salve IP : ")
+        windows_slave_ip = windows_slave_ip.strip()
         windows_slave_ip_list.append(windows_slave_ip)
         windows_slave_name = input("Windows Salve Name : ")
+        windows_slave_name = windows_slave_name.strip()
         windows_salve_name_list.append(windows_slave_name)
         
     linux_slave_dic = dict(zip(linux_salve_name_list, linux_slave_ip_list))
@@ -202,6 +209,5 @@ if __name__ == "__main__":
     grafana_conf_call.linux_conf_generator()
     #Inventory Conf Call
     ansible_conf_call.create_inventory()
-    
     #Process Start 
     process_start.ansible_run()
