@@ -1,0 +1,10 @@
+---
+- name: Docker Compose Master UP
+  hosts: master
+  gather_facts: no
+  remote_user: ncloud
+
+  tasks:
+    - name: Run Grafana # chdir로 해당 디렉토리에 접근한 다음 cmd명령어로 docker-compose를 실행합니다.
+      become: yes
+      shell: docker-compose -f /docker-compose/grafana-node-prom.yaml up -d
