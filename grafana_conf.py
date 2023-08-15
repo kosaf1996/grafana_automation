@@ -20,7 +20,7 @@ class grafana_conf():
 
         for k, v in self.windows_slave_dic.items():
             yml_data['scrape_configs'].append({
-                "job_name": k,
+                "job_name": '"'+ k + '"',
                 "static_configs": [
                     
                         {
@@ -49,7 +49,7 @@ class grafana_conf():
 
         for k, v in self.linux_slave_dic.items():
             yml_data['scrape_configs'].append({
-                "job_name": k,
+                "job_name": '"'+ k + '"',
                 "static_configs": [
                         {
                             'targets': f"""["{v}:9100"]""",
