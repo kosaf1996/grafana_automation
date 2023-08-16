@@ -2,7 +2,7 @@
 - name: Docker Compose Node Exporter UP
   hosts: node
   gather_facts: no
-  remote_user: ncloud
+  remote_user: root
 
   tasks:
     - name: Create node-exproter dir # Exporter를 설치할 path를 정한 후 디렉토리를 생성해줍니다.
