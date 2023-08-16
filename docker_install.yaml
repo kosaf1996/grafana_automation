@@ -1,7 +1,7 @@
 ---
 - name: Docker Install 
   hosts: all
-  remote_user: ncloud 
+  remote_user: root 
 
   tasks:
     - name: Check OS Name  
