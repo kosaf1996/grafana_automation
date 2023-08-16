@@ -20,7 +20,7 @@ class grafana_conf():
 
         for k, v in self.windows_slave_dic.items():
             yml_data['scrape_configs'].append({
-                "job_name": '"'+ k + '"',
+                "job_name": f"""{k}""",
                 "static_configs": [
                     
                         {
@@ -49,7 +49,7 @@ class grafana_conf():
 
         for k, v in self.linux_slave_dic.items():
             yml_data['scrape_configs'].append({
-                "job_name": '"'+ k + '"',
+                "job_name": f"""{k}""",
                 "static_configs": [
                         {
                             'targets': f"""["{v}:9100"]""",
@@ -144,10 +144,10 @@ class process_run():
         docker_install = subprocess.call("ansible-playbook -i /docker-compose/Inventory /docker-compose/docker_install.yaml", shell=True)
         
         print("Node Exporter UP")
-        node_exporter = subprocess.call("ansible-playbook -i /docker-compose/Inventory /docker-compose/node_exporter_ansible.yaml", shell=True)
+        node_exporter = subprocess.call("ansible-playbook -i /docker-compose/Inventory /docker-compose/node-exporter-ansible.yaml", shell=True)
         
         print("Master Grafana UP")
-        master = subprocess.call("ansible-playbook -i /docker-compose/Inventory /docker-compose/grafana_ansible.yaml",shell=True)
+        master = subprocess.call("ansible-playbook -i /docker-compose/Inventory /docker-compose/grafana-ansible.yaml",shell=True)
         
     
 
