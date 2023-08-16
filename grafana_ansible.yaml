@@ -2,7 +2,7 @@
 - name: Docker Compose Master UP
   hosts: master
   gather_facts: no
-  remote_user: ncloud
+  remote_user: root
 
   tasks:
     - name: Run Grafana # chdir로 해당 디렉토리에 접근한 다음 cmd명령어로 docker-compose를 실행합니다.
