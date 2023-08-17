@@ -17,6 +17,11 @@
         state: present 
       when: ansible_distribution == 'CentOS' 
 
+    - name: Ubuntu Update
+      shell: apt-get update
+      become: yes
+      when: ansible_distribution == 'Ubuntu'
+
     - name: Install apt-transport-https 
       package:
         name: apt-transport-https
