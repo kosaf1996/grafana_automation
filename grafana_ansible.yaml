@@ -5,6 +5,10 @@
   remote_user: root
 
   tasks:
-    - name: Run Grafana # chdir로 해당 디렉토리에 접근한 다음 cmd명령어로 docker-compose를 실행합니다.
+    - name: chmod dashboards 
+      become: yes
+      shell: chmod 777 -R /docker-compose/dashboards
+
+    - name: Run Grafana
       become: yes
       shell: docker-compose -f /docker-compose/grafana-node-prom.yaml up -d
