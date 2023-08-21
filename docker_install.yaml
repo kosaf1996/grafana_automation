@@ -117,3 +117,13 @@
       shell: ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
       become: yes
       when: ansible_distribution == 'CentOS'
+
+    - name: Create node-exproter dir # Exporter를 설치할 path를 정한 후 디렉토리를 생성해줍니다.
+      file:
+        path: /docker-compose
+        state: directory
+      become: yes
+
+    - name: Git Clone
+      shell: git clone https://github.com/kosaf1996/grafana_automation.git /docker-compose
+      become: yes
