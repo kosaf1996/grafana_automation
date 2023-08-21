@@ -142,15 +142,18 @@ class process_run():
     def __init__(self) -> None:
         pass 
     
-    def ansible_run(self):
+    
+    def docker_install(self):
         print("Docker Install")
         docker_install = subprocess.call("ansible-playbook -i /docker-compose/Inventory /docker-compose/docker_install.yaml", shell=True)
-        
+        print("Git Clone")
+        git_clone = subprocess.call("ansible-playbook -i /docker-compose/Inventory /docker-compose/docker_install.yaml", shell=True)
+    def ansible_run(self):
         print("Node Exporter UP")
         node_exporter = subprocess.call("ansible-playbook -i /docker-compose/Inventory /docker-compose/node_exporter_ansible.yaml", shell=True)
         
         print("Master Grafana UP")
-        master = subprocess.call("ansible-playbook -i /docker-compose/Inventory /docker-compose/grafana_ansible.yaml",shell=True)
+        master = subprocess.call("ansible-playbook -i /docker-compose/Inventory /docker-compose/git_clone_ansible.yaml",shell=True)
         
 ###########################################################################
 ####                       Fluentd Conf Calss                          ####
@@ -349,6 +352,8 @@ if __name__ == "__main__":
     grafana_conf_call.linux_conf_generator()
     #Inventory Conf Call
     ansible_conf_call.create_inventory()
+    #Docker-Install
+    process_start.docker_install()
     #Fluentd
     fluentd_conf_call.replace()
     #Process Start 
