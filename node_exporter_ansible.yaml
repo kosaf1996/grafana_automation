@@ -14,7 +14,17 @@
     - name: Git Clone
       shell: git clone https://github.com/kosaf1996/grafana_automation.git /docker-compose
       become: yes
+      
+    - name: Ubuntu Fluent Conf MV
+      shell: mv /docker-compose/fluentd/fluent_ubuntu.conf  /docker-compose/fluentd/fluent.conf
+      become: yes
+      when: ansible_distribution == 'Ubuntu'
 
+    - name: CentOS Fluent Conf MV
+      shell: mv /docker-compose/fluentd/fluent_cent.conf  /docker-compose/fluentd/fluent.conf
+      become: yes
+      when: ansible_distribution == 'CentOS'
+      
     - name: Run Node Exporter # chdir로 해당 디렉토리에 접근한 다음 cmd명령어로 docker-compose를 실행합니다.
       shell: docker-compose -f /docker-compose/node-exporter.yaml up -d
       become: yes
