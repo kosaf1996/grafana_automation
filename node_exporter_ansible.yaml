@@ -1,7 +1,6 @@
 ---
 - name: Docker Compose Node Exporter UP
   hosts: node
-  gather_facts: no
   remote_user: root
 
   tasks:      
