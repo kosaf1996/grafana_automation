@@ -1,6 +1,6 @@
 import yaml #pip install pyyaml
 import subprocess
-
+import pysftp
 
 ###########################################################################
 ####                        Grafana Conf Calss                         ####
@@ -135,6 +135,9 @@ class ansible_conf():
                 inv.write(all + '\n')
             inv.close()
             
+###########################################################################
+####                     SubProcess Conf Calss                         ####
+########################################################################### 
 class process_run():
     def __init__(self) -> None:
         pass 
@@ -149,7 +152,130 @@ class process_run():
         print("Master Grafana UP")
         master = subprocess.call("ansible-playbook -i /docker-compose/Inventory /docker-compose/grafana_ansible.yaml",shell=True)
         
+###########################################################################
+####                       Fluentd Conf Calss                          ####
+########################################################################### 
+class fluentd():
+    def __init__(self, master,  linux_slave_dic, access_key, secret_key, bucket, master_name):
+        self.master = master
+        self.master_name = master_name
+        self.linux_slave_dic = linux_slave_dic
+        self.access_key = access_key
+        self.secret_key = secret_key
+        self.bucket = bucket
     
+    ###########################################
+    ###            Fluentd Conf             ###
+    ###########################################
+    def replace(self):
+        
+        dic_tem = None
+        for k, v in self.linux_slave_dic.items():
+            if dic_tem == None:
+                with open("/docker-compose/fluentd/fluent_cent.conf", "rt") as fluent_cent_r:
+                        fluentd_read = fluent_cent_r.read()
+                        fluent_cent_r.close()
+                    
+                with open("/docker-compose/fluentd/fluent_cent.conf", "wt") as fluentd_cent_w:
+                        fluentd_read = fluentd_read.replace('<Server_NAME>', k)
+                        fluentd_read = fluentd_read.replace('<access_key>', self.access_key)
+                        fluentd_read = fluentd_read.replace('<secret_key>', self.secret_key)
+                        fluentd_read = fluentd_read.replace('<bucket_name>', self.bucket)
+                        fluentd_write = fluentd_cent_w.write(fluentd_read)
+                        fluentd_cent_w.close()
+                        
+                with open("/docker-compose/fluentd/fluent_ubuntu.conf", "rt") as fluent_ubuntu_r:
+                        fluentd_read = fluent_ubuntu_r.read()
+                        fluent_ubuntu_r.close()
+                    
+                with open("/docker-compose/fluentd/fluent_ubuntu.conf", "wt") as fluentd_ubuntu_w:
+                        fluentd_read = fluentd_read.replace('<Server_NAME>', k)
+                        fluentd_read = fluentd_read.replace('<access_key>', self.access_key)
+                        fluentd_read = fluentd_read.replace('<secret_key>', self.secret_key)
+                        fluentd_read = fluentd_read.replace('<bucket_name>', self.bucket)
+                        fluentd_write = fluentd_ubuntu_w.write(fluentd_read)
+                        fluentd_ubuntu_w.close()
+                        
+                dic_tem = k
+                fluentd.scp(self, v)
+                
+            elif dic_tem != None:
+                with open("/docker-compose/fluentd/fluent_cent.conf", "rt") as fluent_cent_r:
+                        fluentd_read = fluent_cent_r.read()
+                        fluent_cent_r.close()
+                    
+                with open("/docker-compose/fluentd/fluent_cent.conf", "wt") as fluentd_cent_w:
+                        fluentd_read = fluentd_read.replace(dic_tem, k)
+                        fluentd_write = fluentd_cent_w.write(fluentd_read)
+                        fluentd_cent_w.close()
+                        
+                with open("/docker-compose/fluentd/fluent_ubuntu.conf", "rt") as fluent_ubuntu_r:
+                        fluentd_read = fluent_ubuntu_r.read()
+                        fluent_ubuntu_r.close()
+                    
+                with open("/docker-compose/fluentd/fluent_ubuntu.conf", "wt") as fluentd_ubuntu_w:
+                        fluentd_read = fluentd_read.replace(dic_tem, k)
+                        fluentd_write = fluentd_ubuntu_w.write(fluentd_read)
+                        fluentd_ubuntu_w.close()
+                
+                dic_tem = k
+                fluentd.scp(self, v)
+            
+        with open("/docker-compose/fluentd/fluent_cent.conf", "rt") as fluentd_cent_r:
+                fluentd_read = fluentd_cent_r.read()
+                fluentd_cent_r.close()
+                    
+        with open("/docker-compose/fluentd/fluent_cent.conf", "wt") as fluentd_cent_w:
+                fluentd_read = fluentd_read.replace(dic_tem, self.master_name)
+                fluentd_write = fluentd_cent_w.write(fluentd_read)
+                fluentd_cent_w.close()
+                
+        with open("/docker-compose/fluentd/fluent_ubuntu.conf", "rt") as fluentd_ubuntu_r:
+                fluentd_read = fluentd_ubuntu_r.read()
+                fluentd_ubuntu_r.close()
+                    
+        with open("/docker-compose/fluentd/fluent_ubuntu.conf", "wt") as fluentd_ubuntu_w:
+                fluentd_read = fluentd_read.replace(dic_tem, self.master_name)
+                fluentd_write = fluentd_ubuntu_w.write(fluentd_read)
+                fluentd_ubuntu_w.close()
+
+    ###########################################
+    ###         Fluentd Conf Deploy         ###
+    ###########################################
+    def scp(self, ip):
+        #Connection
+        try:
+            # Get the sftp connection object
+            connection = pysftp.Connection(
+                host=ip,
+                username='root',
+                port=22
+            )
+        except Exception as err:
+            raise Exception(err)
+        finally:
+            print(f"Connected to {ip}as root.")
+            
+        #SCP File PUT
+        try:
+            print(
+                f"uploading to {ip} as root "
+            )
+
+            # Download file from SFTP
+            connection.put("/docker-compose/fluentd/fluent_cent.conf", "/docker-compose/fluentd/fluent_cent.conf")
+            connection.put("/docker-compose/fluentd/fluent_ubuntu.conf", "/docker-compose/fluentd/fluent_ubuntu.conf")
+            print("upload completed")
+
+        except Exception as err:
+            raise Exception(err)
+
+            
+        #Connection Close
+        connection.close()
+
+
+
 
 ###########################################
 ###           Main Function             ###
@@ -158,6 +284,7 @@ if __name__ == "__main__":
     
     #Conf Value Input
     master = input("Master IP : ")
+    master_name = input("Master Name : ")
     linux_slave_num = int(input("Linux Salve Node Num : ")) + 1
     windows_slave_num = int(input("Windows Salve Node Num : ")) +1
     
@@ -187,6 +314,10 @@ if __name__ == "__main__":
         windows_slave_name = windows_slave_name.strip()
         windows_salve_name_list.append(windows_slave_name)
         
+    access_key = input("Access Key : ")
+    secret_key = input("Secret Key : ") 
+    bucket = input("Bucket Name : ")
+        
     linux_slave_dic = dict(zip(linux_salve_name_list, linux_slave_ip_list))
     windows_slave_dic =  dict(zip(windows_salve_name_list, windows_slave_ip_list))
         
@@ -203,11 +334,22 @@ if __name__ == "__main__":
     )
     process_start = process_run()
     
+    fluentd_conf_call = fluentd(
+        master, 
+        linux_slave_dic,
+        access_key, 
+        secret_key, 
+        bucket,
+        master_name
+    )
+    
     #Windows Confg Call
     grafana_conf_call.windows_conf_generator()
     #Linux Confg Call
     grafana_conf_call.linux_conf_generator()
     #Inventory Conf Call
     ansible_conf_call.create_inventory()
+    #Fluentd
+    fluentd_conf_call.replace()
     #Process Start 
     process_start.ansible_run()
