@@ -9,6 +9,16 @@
       become: yes
       shell: chmod 777 -R /docker-compose/dashboards
 
+    - name: Ubuntu Fluent Conf MV
+      shell: mv /docker-compose/fluentd/fluent_ubuntu.conf  /docker-compose/fluentd/fluent.conf
+      become: yes
+      when: ansible_distribution == 'Ubuntu'
+
+    - name: CentOS Fluent Conf MV
+      shell: mv /docker-compose/fluentd/fluent_cent.conf  /docker-compose/fluentd/fluent.conf
+      become: yes
+      when: ansible_distribution == 'CentOS'
+
     - name: Run Grafana
       become: yes
       shell: docker-compose -f /docker-compose/grafana-node-prom.yaml up -d
