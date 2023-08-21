@@ -1,7 +1,6 @@
 ---
 - name: Docker Compose Master UP
   hosts: master
-  gather_facts: no
   remote_user: root
 
   tasks:
