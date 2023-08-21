@@ -19,3 +19,14 @@ services:
       - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
     ports:
       - "9100:9100"
+      
+  fluentd:
+    build:
+      context: /docker-compose/fluentd
+      dockerfile: Dockerfile
+
+    volumes:
+            - /docker-compose/fluentd/fluent.conf:/fluentd/etc/fluent.conf
+            - /var/log:/var/log
+    ports:
+      - "24224:24224"
