@@ -5,9 +5,13 @@
   remote_user: root
 
   tasks:
-    - name: chmod dashboards 
+    - name: /var/log chmod
+      shell: chmod 777 -R /var/log
       become: yes
-      shell: chmod 777 -R /docker-compose/dashboards
+      
+    - name: /docker-compose chmod
+      shell: chmod 777 -R  /docker-compose
+      become: yes
 
     - name: Ubuntu Fluent Conf MV
       shell: mv /docker-compose/fluentd/fluent_ubuntu.conf  /docker-compose/fluentd/fluent.conf
