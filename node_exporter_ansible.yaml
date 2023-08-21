@@ -4,17 +4,7 @@
   gather_facts: no
   remote_user: root
 
-  tasks:
-    - name: Create node-exproter dir # Exporter를 설치할 path를 정한 후 디렉토리를 생성해줍니다.
-      file:
-        path: /docker-compose
-        state: directory
-      become: yes
-
-    - name: Git Clone
-      shell: git clone https://github.com/kosaf1996/grafana_automation.git /docker-compose
-      become: yes
-      
+  tasks:      
     - name: Ubuntu Fluent Conf MV
       shell: mv /docker-compose/fluentd/fluent_ubuntu.conf  /docker-compose/fluentd/fluent.conf
       become: yes
