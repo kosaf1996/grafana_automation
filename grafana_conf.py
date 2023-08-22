@@ -6,8 +6,9 @@ import pysftp
 ####                        Grafana Conf Calss                         ####
 ###########################################################################
 class grafana_conf():
-    def __init__(self,master,  linux_slave_dic,windows_slave_dic) -> None:
+    def __init__(self,master, master_name, linux_slave_dic,windows_slave_dic) -> None:
         self.master = master
+        self.master_name = master_name
         self.linux_slave_dic = linux_slave_dic
         self.windows_slave_dic = windows_slave_dic
     
@@ -46,6 +47,16 @@ class grafana_conf():
     def linux_conf_generator(self):
         yml_data = {}
         yml_data['scrape_configs'] = []
+        
+        yml_data['scrape_configs'].append({
+                "job_name": f"""{self.master_name}""",
+                "static_configs": [
+                        {
+                            'targets': f"""["{self.master}:9100"]""",
+                        }
+                    ]
+                }
+            )
 
         for k, v in self.linux_slave_dic.items():
             yml_data['scrape_configs'].append({
@@ -327,6 +338,7 @@ if __name__ == "__main__":
     #Init Function Conf
     grafana_conf_call = grafana_conf(
         master,
+        master_name,
         linux_slave_dic,
         windows_slave_dic
 
